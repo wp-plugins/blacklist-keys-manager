@@ -1,5 +1,5 @@
 === Blacklist keys manager ===
-Contributors: takenori matsuura
+Contributors: tmatsuur
 Donate link: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Tags: comment, spam, blacklist, moderation
 Requires at least: 3.5.0
