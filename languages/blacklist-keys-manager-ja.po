@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: blacklist keys manager\n"
-"POT-Creation-Date: 2013-09-12 08:14+0900\n"
-"PO-Revision-Date: 2013-09-12 08:15+0900\n"
+"POT-Creation-Date: 2013-09-18 10:38+0900\n"
+"PO-Revision-Date: 2013-09-18 10:38+0900\n"
 "Last-Translator: takenori matsuura <takenori.matsuura@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,40 +16,40 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n == 1 ? 0 : 1;\n"
 "X-Poedit-SearchPath-0: wp-content\\plugins\\blacklist-keys-manager\n"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:46
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:51
 msgid "Blacklist keys manager"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:47
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:290
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:300
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:305
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:52
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:377
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:387
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:392
 msgid "Comment Blacklist"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:227
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:312
 #, php-format
 msgid "Item permanently deleted."
 msgid_plural "%s items permanently deleted."
 msgstr[0] ""
 msgstr[1] ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:273
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:358
 #, php-format
 msgid "%s key updated."
 msgid_plural "%s keys updated."
 msgstr[0] "%s件の項目を更新しました。"
 msgstr[1] "%s件の項目を更新しました。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:275
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:360
 msgid "Settings saved."
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:300
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:387
 msgid "Settings"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:302
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:389
 msgid ""
 "A comment blacklist is managed. Please drag and drop a key suitably. "
 "Moreover, if a key is double-clicked, it can edit."
@@ -58,7 +58,7 @@ msgstr ""
 "ロップして移動してください。またキーをダブルクリックすることで、そのキーを編"
 "集できます。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:312
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:399
 msgid ""
 "When a comment contains any of these words in its content, name, URL, e-"
 "mail, or IP, it will be marked as spam."
@@ -66,11 +66,11 @@ msgstr ""
 "コメントの内容、名前、URL、メールアドレス、IP に以下の単語のうちいずれかでも"
 "含んでいる場合、そのコメントはスパムとしてマークされます。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:313
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:400
 msgid "Comment Moderation"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:320
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:407
 msgid ""
 "When a comment contains any of these words in its content, name, URL, e-"
 "mail, or IP, it will be held in the <a href=\"edit-comments.php?"
@@ -80,105 +80,157 @@ msgstr ""
 "含んでいる場合、そのコメントは<a href=\"edit-comments.php?"
 "comment_status=moderated\">モデレーション待ち</a>になります。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:321
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:408
 msgid "Trash"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:328
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:415
 msgid "The key which became unnecessary should move here."
 msgstr "不要になったキーはこちらに移動してください。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:333
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:420
 msgid "Edit key:"
 msgstr "キー編集:"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:334
-msgid "Add to a blacklist"
-msgstr "ブラックリストに追加"
-
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:335
-msgid "Add to a whitelist"
-msgstr "ホワイトリストに追加"
-
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:336
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:421
 msgid "Update"
 msgstr "修正"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:345
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:423
+msgid "Add to a blacklist"
+msgstr "ブラックリストに追加"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:424
+msgid "Add to a extended blacklist"
+msgstr "拡張ブラックリストに追加"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:425
+msgid "Add to a whitelist"
+msgstr "ホワイトリストに追加"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:435
 msgid "Extract blacklist"
 msgstr "ブラックリストの抽出"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:347
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:437
 msgid "Extract blacklist keys from spam comments."
 msgstr "スパムコメントからブラックリストの単語を抽出します。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:348
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:438
 msgid "Comment Whitelist"
 msgstr "コメントホワイトリスト"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:355
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:445
 msgid "These keys are not added to a blacklist."
 msgstr "これらのキーはブラックリストに追加されません。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:358
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:448
 msgid "Select extract pattern"
 msgstr "抽出内容の選択"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:361
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:451
 msgid "Full path"
 msgstr "フルパス"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:361
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:362
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:451
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:452
 msgid "e.g."
 msgstr "例:"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:362
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:452
 msgid "Domain name or IP address"
 msgstr "ドメイン名またはIPアドレス"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:367
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:457
 msgid "Auto extract"
 msgstr "自動抽出"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:368
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:458
 msgid "When marked a comment as spam."
 msgstr "コメントがスパムとしてマークされたとき"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:373
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:463
 msgid "Other"
 msgstr "その他"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:375
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:465
 msgid "Max links"
 msgstr "リンク数"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:376
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:466
 #, php-format
 msgid "When a comment contains %s or more links, it marks as spam."
 msgstr ""
 "%s個以上のリンクがコメントの内容に含まれている場合、そのコメントはスパムとし"
 "てマークされます。"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:385
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:469
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:472
+msgid "Extended blacklist"
+msgstr "拡張ブラックリスト"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:470
+msgid "Use an extended blacklist."
+msgstr "拡張ブラックリストを使用します。"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:471
+msgid ""
+"A regular expression can be used in an extended blacklist. However, when it "
+"matches a white list, it is not marked as spam."
+msgstr ""
+"拡張ブラックリストでは、正規表現を使用できます。ただし、ホワイトリストにマッ"
+"チする場合は、スパムとしてマークされません。"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:490
 msgid "Save Changes"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:386
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:491
 msgid "Extract now"
 msgstr "今すぐ抽出"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:387
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:492
 msgid "Empty Trash"
 msgstr ""
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:399
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:493
+msgid "Test an extended blacklist"
+msgstr "拡張ブラックリストをテスト"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:505
 msgid "Does it really delete?"
 msgstr "本当に削除してよろしいですか？"
 
-#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:475
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:586
 msgid "The key is already registered."
 msgstr "そのキーはすでに登録されています。"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:614
+msgid "During the test..."
+msgstr "テスト中..."
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:628
+msgid "Result of the test"
+msgstr "テスト結果"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:628
+msgid "Amount of comments:"
+msgstr "コメント数:"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:628
+msgid "Extended blacklist key"
+msgstr "拡張ブラックリストキー"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:628
+msgid "Matched comments"
+msgstr "マッチしたコメント数"
+
+#: wp-content\plugins\blacklist-keys-manager/blacklist-keys-manager.php:628
+msgid "Matched words"
+msgstr "マッチしたワード"
+
+#~ msgid "A regular expression can be used in an extended blacklist."
+#~ msgstr "拡張ブラックリストでは正規表現が使用できます。"
 
 #~ msgid "The word once removed from a blacklist should move here."
 #~ msgstr "ブラックリストから外す単語はここに移動してください。"

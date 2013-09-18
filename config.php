@@ -1,7 +1,7 @@
 <?php
 define( 'BLACKLIST_KEYS_MANAGER_DOMAIN', 'blacklist-keys-manager' );
 define( 'BLACKLIST_KEYS_MANAGER_DB_VERSION_NAME', 'blacklist-keys-manager-db-version' );
-define( 'BLACKLIST_KEYS_MANAGER_DB_VERSION', '1.00' );
+define( 'BLACKLIST_KEYS_MANAGER_DB_VERSION', '1.1.0' );
 define( 'BLACKLIST_KEYS_MANAGER_PROPERTIES', 'blacklist-keys-manager-properties' );
 
 function blacklist_keys_manager_update_version() {

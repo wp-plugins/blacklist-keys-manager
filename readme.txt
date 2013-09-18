@@ -4,7 +4,7 @@ Donate link: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Tags: comment, spam, blacklist, moderation
 Requires at least: 3.5.0
 Tested up to: 3.6.0
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 
 The increase in efficiency of management of a comment blacklist is attained, and a spam comment is blocked.
 
@@ -19,6 +19,7 @@ This plugin increases the efficiency of spam distinction of a comment. It is pos
 * URL contained in the accumulated spam comment can be added to a blacklist.
 * URL contained in a new spam comment can be added to a blacklist when marked spam. 
 * The comment in which a few URL is contained can be marked as spam. 
+* The extended blacklist corresponding to a regular expression can be used.
 
 = Support =
 
@@ -52,6 +53,9 @@ Please contact to me.
 1. Properties page.
 
 == Changelog ==
+
+= 1.1.0 =
+* The extended blacklist corresponding to a regular expression can be used.
 
 = 1.0.0 =
 * The first release.

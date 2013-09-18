@@ -4,7 +4,7 @@ Plugin Name: Blacklist keys manager
 Plugin URI: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Description: This plugin manages a comment blacklist.
 Author: tmatsuur
-Version: 1.0.0
+Version: 1.1.0
 Author URI: http://12net.jp/
 */
 
@@ -34,7 +34,12 @@ class blacklist_keys_manager {
 		if ( isset( $this->properties['auto_extract'] ) && $this->properties['auto_extract'] )
 			add_action( 'spammed_comment', array( &$this, 'spammed_comment' ) );
 		if ( isset( $this->properties['spam_max_links'] ) && $this->properties['spam_max_links'] )
-			add_filter( 'pre_comment_approved' , array( &$this, 'extend_comment_approved' ), 10, 2 );
+			add_filter( 'pre_comment_approved' , array( &$this, 'maxlinks_comment_approved' ), 10, 2 );
+		if ( isset( $this->properties['exblacklist'] ) && ( $mod_keys = trim( $this->properties['exblacklist'] ) ) != '' ) {
+			if ( isset( $this->properties['use_extended_blacklist'] ) && $this->properties['use_extended_blacklist'] )
+				add_filter( 'pre_comment_approved', array( &$this, 'exblacklist_comment_approved' ), 10, 2 );
+			add_action( 'wp_ajax_test_exblacklist', array( &$this, 'test_exblacklist' ) );
+		}
 	}
 	function register_activation() {
 		blacklist_keys_manager_update_version();
@@ -80,7 +85,7 @@ class blacklist_keys_manager {
 	border: 3px dashed #CCCCFF;
 }
 .drag-frame ul {
-	margin: 0 0 1.5em 0;
+	margin: 0 1.5em 1.5em 0;
 }
 .drag-frame ul li {
 	margin: 1px;
@@ -94,6 +99,7 @@ class blacklist_keys_manager {
 	border-radius: 3px;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
+	white-space: nowrap;
 }
 .drag-frame ul li.ui-sortable-helper {
 	background-color: #FFFFFF;
@@ -139,12 +145,23 @@ class blacklist_keys_manager {
 	border: 3px dotted #278ab7;
 	padding: 10px;
 	text-align: center;
-	width: 52em;
+	width: 42em;
 	margin-left: auto;
 	margin-right: auto;
 }
 #key_name {
-	width: 15em;
+	width: 22em;
+}
+#test_exblacklist_result {
+	padding-left: 10px;
+	width: 98%;
+}
+#test_exblacklist_result table caption {
+	text-align: left;
+	padding: 0.25em;
+}
+#test_exblacklist_result table th {
+	text-align: center;
 }
 </style>
 <?php
@@ -170,7 +187,8 @@ class blacklist_keys_manager {
 		if ( preg_match_all( '/(https?:\/\/)([\.0-9a-zA-Z\-]+)([-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%]*)/u', $c->comment_content, $_matched ) ) {
 			$keys = ( $this->properties['extract_url'] == 'domain' )? $_matched[2]: $_matched[0];
 			foreach ( $keys as $key ) {
-				if ( !in_array( $key, $_blacklist ) && !in_array( $key, $_whitelist ) && !in_array( $key, $_moderation ) ) {
+				$key = trim( $key );
+				if ( !in_array( $key, $_blacklist ) && !in_array( $key, $_whitelist ) && !in_array( $key, $_moderation ) && !$this->in_exblacklist( $key ) ) {
 					foreach ( $_blacklist as $bi=>$_black ) {
 						if ( strpos( $_black, $key ) !== false ) {
 							// ブラックリストの単語が見つかったキーを含んでいたら
@@ -203,9 +221,9 @@ class blacklist_keys_manager {
 			update_option( BLACKLIST_KEYS_MANAGER_PROPERTIES, $this->properties );
 		}
 	}
-	function extend_comment_approved( $approved, $commentdata ) {
-		if ( isset( $this->properties['spam_max_links'] ) && $this->properties['spam_max_links'] &&
-			$approved == 0 &&
+	function maxlinks_comment_approved( $approved, $commentdata ) {
+		if ( $approved == 0 &&
+			isset( $this->properties['spam_max_links'] ) && $this->properties['spam_max_links'] &&
 			preg_match_all( '/(https?:\/\/)([\.0-9a-zA-Z\-]+)([-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%]*)/u', $commentdata['comment_content'], $_matched ) ) {
 			// コメント中にURLが見つかったら
 			if (count( $_matched[0] ) >= $this->properties['max_links'] )
@@ -213,17 +231,108 @@ class blacklist_keys_manager {
 		}
 		return $approved;
 	}
+	function exblacklist_comment_approved( $approved, $commentdata ) {
+		if ( $approved == 0 ) {
+			extract( $commentdata, EXTR_SKIP );
+			$_whitelist = $this->keys( $this->properties['whitelist'] );
+			foreach ( (array)explode( "\n", trim( $this->properties['exblacklist'] ) ) as $word ) {
+				$word = trim( $word );
+				if ( empty( $word ) )
+					continue;
+
+				$pattern = "#$word#i";
+				if (	( preg_match( $pattern, $comment_author, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match( $pattern, $comment_author_email, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match( $pattern, $comment_author_url, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match_all( $pattern, $comment_content, $matched ) && count( array_intersect( $matched[0], $_whitelist ) ) == 0 )
+						|| ( preg_match( $pattern, $comment_author_IP, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match( $pattern, $comment_agent, $matched ) && !in_array( $matched[0], $_whitelist ) ) )
+					return 'spam';
+			}
+		}
+		return $approved;
+	}
+	function test_exblacklist() {
+		if ( isset( $_POST['exblacklist'] ) )
+			$exblacklist = explode( "\n", stripslashes_deep( $_POST['exblacklist'] ) );
+		else
+			$exblacklist = explode( "\n", $this->properties['exblacklist'] );
+		$_whitelist = $this->keys( $this->properties['whitelist'] );
+		$hits = array();
+		add_filter( 'comments_clauses', array( &$this, 'all_comments_clauses' ) );
+		$comments = get_comments();
+		foreach ( $comments as $c ) {
+			foreach ( $exblacklist as $word ) {
+				$word = trim( $word );
+				if ( empty( $word ) )
+					continue;
+
+				$pattern = "#$word#i";
+				if ( !isset( $hits[$word] ) ) {
+					$hits[$word]['count'] = 0;
+					$hits[$word]['word'] = array();
+				}
+				if (	( preg_match( $pattern, $c->comment_author, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match( $pattern, $c->comment_author_email, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match( $pattern, $c->comment_author_url, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match_all( $pattern, $c->comment_content, $matched ) && count( array_intersect( $matched[0], $_whitelist ) ) == 0 )
+						|| ( preg_match( $pattern, $c->comment_author_IP, $matched ) && !in_array( $matched[0], $_whitelist ) )
+						|| ( preg_match( $pattern, $c->comment_agent, $matched ) && !in_array( $matched[0], $_whitelist ) ) ) {
+					$hits[$word]['count']++;
+					$hits[$word]['word'] = array_unique( array_merge( $hits[$word]['word'], (array)$matched[0] ) );
+				}
+			}
+		}
+		$response = array( 'ncomments'=>count( $comments ), 'result'=>$hits );
+		nocache_headers();
+		header( "Content-Type: application/json; charset=".get_bloginfo( 'charset' ) );
+		echo json_encode( $response );
+		die();
+	}
+	function in_exblacklist( $key ) {
+		if ( !empty( $key ) && isset( $this->properties['use_extended_blacklist'] ) && $this->properties['use_extended_blacklist'] &&
+			isset( $this->properties['exblacklist'] ) && ( $ex_keys = trim( $this->properties['exblacklist'] ) ) != '' ) {
+			$exblacklist = explode( "\n", $ex_keys );
+			foreach ( $exblacklist as $word ) {
+				$word = trim( $word );
+				if ( empty( $word ) )
+					continue;
+				if ( preg_match( "#$word#i", $key ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	function all_comments_clauses( $clauses ) {
+		if ( isset( $clauses['where'] ) && $clauses['where'] == "( comment_approved = '0' OR comment_approved = '1' )" )
+			$clauses['where'] = 'comment_approved IS NOT NULL';
+		return $clauses;
+	}
 	function properties() {
 		$message = '';
 		if ( isset( $_POST['properties'] ) ) {
-			update_option( 'blacklist_keys', $_POST['properties']['blacklist_keys'] );
-			update_option( 'moderation_keys', $_POST['properties']['moderation_keys'] );
+			$_POST['properties'] = stripslashes_deep( $_POST['properties'] );
 			$this->properties['graylist'] = $_POST['properties']['graylist_keys'];
 			$this->properties['whitelist'] = $_POST['properties']['whitelist_keys'];
 			$this->properties['extract_url'] = $_POST['properties']['extract_url'];
 			$this->properties['auto_extract'] = isset( $_POST['properties']['auto_extract'] );
 			$this->properties['spam_max_links'] = isset( $_POST['properties']['spam_max_links'] );
 			$this->properties['max_links'] = intval( $_POST['properties']['max_links'] );
+			$this->properties['use_extended_blacklist'] = isset( $_POST['properties']['use_extended_blacklist'] );
+			$this->properties['exblacklist'] = $_POST['properties']['exblacklist_keys'];
+			$new_blacklist = explode( "\n", trim( $_POST['properties']['blacklist_keys'] ) );
+			$new_glaylist = explode( "\n", trim( $this->properties['graylist'] ) );
+			foreach ( $new_blacklist as $i=>$key ) {
+				if ( $this->in_exblacklist( $key ) ) {
+					unset( $new_blacklist[$i] );
+					if ( !in_array( $key, $new_glaylist ) )
+						$new_glaylist[] = $key;
+				}
+			}
+			update_option( 'blacklist_keys', implode( "\n", $new_blacklist ) );
+			update_option( 'moderation_keys', $_POST['properties']['moderation_keys'] );
+			$this->properties['graylist'] = implode( "\n", $new_glaylist );
 			update_option( BLACKLIST_KEYS_MANAGER_PROPERTIES, $this->properties );
 			if ( isset( $_POST['delete'] ) ) {
 				$deleted = explode( "\n", trim( $_POST['properties']['delete_keys'] ) );
@@ -240,7 +349,8 @@ class blacklist_keys_manager {
 					if ( preg_match_all( '/(https?:\/\/)([\.0-9a-zA-Z\-]+)([-_.!~*\'()a-zA-Z0-9;\/?:\@&=+\$,%]*)/u', $c->comment_content, $_matched ) ) {
 						$keys = ( $this->properties['extract_url'] == 'domain' )? $_matched[2]: $_matched[0];
 						foreach ( $keys as $key ) {
-							if ( !in_array( $key, $_blacklist ) && !in_array( $key, $_whitelist ) && !in_array( $key, $_moderation ) ) {
+							$key = trim( $key );
+							if ( !in_array( $key, $_blacklist ) && !in_array( $key, $_whitelist ) && !in_array( $key, $_moderation ) && !$this->in_exblacklist( $key ) ) {
 								foreach ( $_blacklist as $bi=>$_black ) {
 									if ( strpos( $_black, $key ) !== false ) {
 										// ブラックリストの単語が見つかったキーを含んでいたら
@@ -285,8 +395,10 @@ class blacklist_keys_manager {
 		asort( $_moderation );
 		$_blacklist = $this->keys( get_option( 'blacklist_keys' ) );
 		asort( $_blacklist );
+		$_exblacklist = $this->keys( $this->properties['exblacklist'] );
+		asort( $_exblacklist );
 		$key_no = 1;
-		$nkeys = count( $_graylist )+count( $_whitelist )+count( $_moderation )+count( $_blacklist )+1001;
+		$nkeys = count( $_graylist )+count( $_whitelist )+count( $_moderation )+count( $_blacklist )+count( $_exblacklist )+1001;
 ?>
 <div id="<?php echo self::PROPERTIES_NAME; ?>" class="wrap">
 <div id="icon-options-general" class="icon32"><br /></div>
@@ -334,9 +446,12 @@ class blacklist_keys_manager {
 <td colspan="3">
 <div class="edit-frame">
 <label id="edit_label" for="key_name"><?php _e( 'Edit key:',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></label> <input type="text" name="key_name" id="key_name" value="" />&nbsp;
+<button id="update_key" class="button" disabled="disabled"><?php _e( 'Update',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></button>&nbsp;
+<div style="margin-top: 0.5em;">
 <button id="add_blacklist" class="button"><?php _e( 'Add to a blacklist',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></button>&nbsp;
+<button id="add_exblacklist" class="button"><?php _e( 'Add to a extended blacklist',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></button>&nbsp;
 <button id="add_whitelist" class="button"><?php _e( 'Add to a whitelist',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></button>&nbsp;
-<button id="update_key" class="button" disabled="disabled"><?php _e( 'Update',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></button>
+</div>
 <input type="hidden" id="last_key_no" value="<?php echo $nkeys; ?>" />
 <input type="hidden" id="edit_key_no" value="0" />
 </div>
@@ -348,7 +463,7 @@ class blacklist_keys_manager {
 <caption><?php _e( 'Extract blacklist',BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></caption>
 <tr valign="top">
 <th colspan="2"><?php _e( 'Extract blacklist keys from spam comments.', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></th>
-<td rowspan="3"><h3><?php _e( 'Comment Whitelist', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?> <span id="nwhitelist">(<?php echo count( $_whitelist ); ?>)</span></h3><div class="drag-frame"><ul id="whitelist_keys_list" class="drag-drop">
+<td rowspan="3" style="width: 56%;"><h3><?php _e( 'Comment Whitelist', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?> <span id="nwhitelist">(<?php echo count( $_whitelist ); ?>)</span></h3><div class="drag-frame"><ul id="whitelist_keys_list" class="drag-drop">
 <?php if ( count( $_whitelist ) > 0 ) { foreach ( $_whitelist as $value ) { ?>
 <li id="key<?php echo $key_no; $key_no++ ?>" class="key"><?php _e( $value ); ?></li>
 <?php } } else { ?>
@@ -376,18 +491,34 @@ class blacklist_keys_manager {
 <caption><?php _e( 'Other', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></caption>
 <tr valign="middle">
 <th><?php _e( 'Max links', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></th>
-<td><input type="checkbox" name="properties[spam_max_links]" value="1" <?php checked( $this->properties['spam_max_links'] ); ?> />&nbsp;<?php printf( __( 'When a comment contains %s or more links, it marks as spam.', BLACKLIST_KEYS_MANAGER_DOMAIN ), '<input name="properties[max_links]" type="number" step="1" min="1" id="max_links" value="' . esc_attr( isset( $this->properties['max_links'] )? $this->properties['max_links']: get_option('comment_max_links')+1 ) . '" class="small-text" />' ); ?></td>
+<td colspan="2"><input type="checkbox" name="properties[spam_max_links]" value="1" <?php checked( $this->properties['spam_max_links'] ); ?> />&nbsp;<?php printf( __( 'When a comment contains %s or more links, it marks as spam.', BLACKLIST_KEYS_MANAGER_DOMAIN ), '<input name="properties[max_links]" type="number" step="1" min="1" id="max_links" value="' . esc_attr( isset( $this->properties['max_links'] )? $this->properties['max_links']: get_option('comment_max_links')+1 ) . '" class="small-text" />' ); ?></td>
 </tr>
 <tr valign="top">
-<td colspan="2">
+<th><?php _e( 'Extended blacklist', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></th>
+<td><input type="checkbox" name="properties[use_extended_blacklist]" id="use_extended_blacklist" value="1" <?php checked( $this->properties['use_extended_blacklist'] ); ?> />&nbsp;<label for="use_extended_blacklist"><?php _e( 'Use an extended blacklist.', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></label>
+<p class="description"><?php _e( 'A regular expression can be used in an extended blacklist. However, when it matches a white list, it is not marked as spam.', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></p></td>
+<td style="width: 56%;"><h3><?php _e( 'Extended blacklist', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?> <span id="nexblacklist">(<?php echo count( $_exblacklist ); ?>)</span></h3>
+<div class="drag-frame"><ul id="exblacklist_keys_list" class="drag-drop">
+<?php if ( count( $_exblacklist ) > 0 ) { foreach ( $_exblacklist as $value ) { ?>
+<li id="key<?php echo $key_no; $key_no++ ?>" class="key"><?php _e( $value ); ?></li>
+<?php } } else { ?>
+<li class="ui-state-highlight ui-state-placeholder ui-state-disabled">&nbsp;</li>
+<?php } ?>
+</ul></div>
+</td>
+</tr>
+<tr valign="top">
+<td colspan="3">
 <input type="hidden" id="blacklist_keys_value" name="properties[blacklist_keys]" value="" />
+<input type="hidden" id="exblacklist_keys_value" name="properties[exblacklist_keys]" value="" />
 <input type="hidden" id="moderation_keys_value" name="properties[moderation_keys]" value="" />
 <input type="hidden" id="graylist_keys_value" name="properties[graylist_keys]" value="" />
 <input type="hidden" id="whitelist_keys_value" name="properties[whitelist_keys]" value="" />
 <input type="hidden" id="delete_keys_value" name="properties[delete_keys]" value="" />
 <input type="submit" id="properties_submit" name="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" class="button-primary" />&nbsp;
 <input type="submit" id="extract_blacklist" name="extract" value="<?php esc_attr_e( 'Extract now', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?>" class="button" />&nbsp;
-<input type="submit" id="delete_candidate" name="delete" value="<?php esc_attr_e( 'Empty Trash' ); ?>" class="button" />
+<input type="submit" id="delete_candidate" name="delete" value="<?php esc_attr_e( 'Empty Trash' ); ?>" class="button" />&nbsp;
+<input type="button" id="test_exblacklist" value="<?php esc_attr_e( 'Test an extended blacklist', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?>" class="button" />
 </td>
 </tr>
 </table>
@@ -411,6 +542,9 @@ class blacklist_keys_manager {
 		$( '#form-properties' ).submit( function () {
 			$( '#blacklist_keys_list li.key' ).each( function () {
 				$( '#blacklist_keys_value' ).val( $( '#blacklist_keys_value' ).val()+$(this).text()+"\n" );
+			} );
+			$( '#exblacklist_keys_list li.key' ).each( function () {
+				$( '#exblacklist_keys_value' ).val( $( '#exblacklist_keys_value' ).val()+$(this).text()+"\n" );
 			} );
 			$( '#moderation_keys_list li.key' ).each( function () {
 				$( '#moderation_keys_value' ).val( $( '#moderation_keys_value' ).val()+$(this).text()+"\n" );
@@ -464,9 +598,11 @@ class blacklist_keys_manager {
 				$( '#key_name' ).val( $(this).html() );
 				$( '#edit_key_no' ).val( $(this).attr( 'id' ).replace( 'key', '' ) );
 				$( '#update_key' ).removeAttr( 'disabled' );
+				edit_offset = $( '#edit_label' ).offset();
+				$( 'body,html' ).animate( { scrollTop: ( edit_offset.top*2/3 )+'px' }, 500 );
 			}
 		} );
-		$( '#add_blacklist,#add_whitelist,#update_key' ).click( function () {
+		$( '#add_blacklist,#add_exblacklist,#add_whitelist,#update_key' ).click( function () {
 			var new_key = $.trim( $( '#key_name' ).val() );
 			if ( new_key != '' ) {
 				var already = null;
@@ -487,6 +623,9 @@ class blacklist_keys_manager {
 						$( '#blacklist_keys_list' ).append( new_item );
 					else if ( $(this).attr( 'id' ) == 'add_whitelist' )
 						$( '#whitelist_keys_list' ).append( new_item );
+					else if ( $(this).attr( 'id' ) == 'add_exblacklist' ) {
+						$( '#exblacklist_keys_list' ).append( new_item );
+					}
 					$( '#last_key_no' ).val( parseInt( last_key_no )+1 );
 				}
 				$( '#key_name' ).val( '' );
@@ -495,6 +634,45 @@ class blacklist_keys_manager {
 //				return false;
 			} else
 				return false;
+		} );
+		$( '#test_exblacklist' ).click( function () {
+			var exblacklist = '';
+			$( '#exblacklist_keys_list li.key' ).each( function () { exblacklist += $.trim( $(this).text() )+"\n"; } );
+			if ( exblacklist != '' ) {
+				var request_html = '<?php _e( 'During the test...', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?>';
+				if ( $( '#test_exblacklist_result' ).length == 1 )
+					$( '#test_exblacklist_result' ).html( request_html );
+				else
+					$( '#<?php echo self::PROPERTIES_NAME; ?>' ).append( '<div id="test_exblacklist_result">'+request_html+'</div>' );
+				$.ajax( {
+					type: 'POST',
+					url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+					data: {
+						"action": "test_exblacklist",
+						"exblacklist": exblacklist
+					},
+					dataType : 'json',
+					timeout: 30000,
+					success: function ( data ) {
+						var result_html = '<table class="wp-list-table widefat"><caption><?php _e( 'Result of the test', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?> (<?php _e( 'Amount of comments:', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?> '+data.ncomments+')</caption><thead><tr><th><?php _e( 'Extended blacklist key', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></th><th><?php _e( 'Matched comments', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></th><th width="70%"><?php _e( 'Matched words', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></th></tr></thead>';
+						for ( var key in data.result ) {
+							if ( Array.isArray( data.result[key]['word'] ) && data.result[key]['word'].length > 0 )
+								words = data.result[key]['word'].join( ' ' );
+							else
+								words = '&nbsp;';
+							result_html += '<tr><td>'+key+'</td><td class="num">'+data.result[key]['count']+'</td><td>'+words+'</td></tr>';
+						}
+						result_html += '</table>';
+						$( '#test_exblacklist_result' ).html( result_html );
+						result_offset = $( '#test_exblacklist_result' ).offset();
+						$( 'body,html' ).animate( { scrollTop: ( result_offset.top-30 )+'px' }, 500 );
+					},
+					error: function ( data, status ) {
+						$( '#test_exblacklist_result' ).html( 'Sorry! '+status );
+					}
+				} );
+			}
+			return false;
 		} );
 	} );
 } )( jQuery );
