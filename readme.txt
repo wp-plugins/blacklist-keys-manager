@@ -3,8 +3,8 @@ Contributors: tmatsuur
 Donate link: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Tags: comment, spam, blacklist, moderation
 Requires at least: 3.5.0
-Tested up to: 3.6.0
-Stable tag: 1.1.0
+Tested up to: 3.7.1
+Stable tag: 1.1.1
 
 The increase in efficiency of management of a comment blacklist is attained, and a spam comment is blocked.
 
@@ -53,6 +53,9 @@ Please contact to me.
 1. Properties page.
 
 == Changelog ==
+
+= 1.1.1 =
+* 'Empty Trash' button moved.
 
 = 1.1.0 =
 * The extended blacklist corresponding to a regular expression can be used.

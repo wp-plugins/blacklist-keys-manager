@@ -4,7 +4,7 @@ Plugin Name: Blacklist keys manager
 Plugin URI: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Description: This plugin manages a comment blacklist.
 Author: tmatsuur
-Version: 1.1.0
+Version: 1.1.1
 Author URI: http://12net.jp/
 */
 
@@ -336,7 +336,7 @@ class blacklist_keys_manager {
 			update_option( BLACKLIST_KEYS_MANAGER_PROPERTIES, $this->properties );
 			if ( isset( $_POST['delete'] ) ) {
 				$deleted = explode( "\n", trim( $_POST['properties']['delete_keys'] ) );
-				$message = sprintf( _n( 'Item permanently deleted.', '%s items permanently deleted.', count( $deleted ) ), number_format_i18n( count( $deleted ) ) );
+				$message = sprintf( _n( 'Item permanently deleted.', '%s items permanently deleted.', count( $deleted ), BLACKLIST_KEYS_MANAGER_DOMAIN ), number_format_i18n( count( $deleted ) ) );
 			} else if ( isset( $_POST['extract'] ) ) {
 				$_blacklist = $this->keys( get_option( 'blacklist_keys' ) );
 				$_moderation = $this->keys( get_option( 'moderation_keys' ) );
@@ -433,7 +433,7 @@ class blacklist_keys_manager {
 <?php } ?>
 </ul></div>
 <p class="description"><?php _e( 'When a comment contains any of these words in its content, name, URL, e-mail, or IP, it will be held in the <a href="edit-comments.php?comment_status=moderated">moderation queue</a>.', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?></p></td>
-<td><h3 class="title"><?php _e( 'Trash' ); ?> <span id="ngraylist">(<?php echo count( $_graylist ); ?>)</span></h3><div class="drag-frame"><ul id="graylist_keys_list" class="drag-drop">
+<td><h3 class="title"><?php _e( 'Trash' ); ?> <span id="ngraylist">(<?php echo count( $_graylist ); ?>)</span>&nbsp;<input type="submit" id="delete_candidate" name="delete" value="<?php esc_attr_e( 'Empty Trash' ); ?>" class="button" /></h3><div class="drag-frame"><ul id="graylist_keys_list" class="drag-drop">
 <?php if ( count( $_graylist ) > 0 ) { foreach ( $_graylist as $value ) { ?>
 <li id="key<?php echo $key_no; $key_no++ ?>" class="key"><?php _e( $value ); ?></li>
 <?php } } else { ?>
@@ -517,7 +517,6 @@ class blacklist_keys_manager {
 <input type="hidden" id="delete_keys_value" name="properties[delete_keys]" value="" />
 <input type="submit" id="properties_submit" name="submit" value="<?php esc_attr_e( 'Save Changes' ); ?>" class="button-primary" />&nbsp;
 <input type="submit" id="extract_blacklist" name="extract" value="<?php esc_attr_e( 'Extract now', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?>" class="button" />&nbsp;
-<input type="submit" id="delete_candidate" name="delete" value="<?php esc_attr_e( 'Empty Trash' ); ?>" class="button" />&nbsp;
 <input type="button" id="test_exblacklist" value="<?php esc_attr_e( 'Test an extended blacklist', BLACKLIST_KEYS_MANAGER_DOMAIN ); ?>" class="button" />
 </td>
 </tr>
