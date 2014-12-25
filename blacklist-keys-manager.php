@@ -4,12 +4,12 @@ Plugin Name: Blacklist keys manager
 Plugin URI: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Description: This plugin manages a comment blacklist.
 Author: tmatsuur
-Version: 1.1.1
+Version: 1.1.2
 Author URI: http://12net.jp/
 */
 
 /*
- Copyright (C) 2013 tmatsuur (Email: takenori dot matsuura at 12net dot jp)
+ Copyright (C) 2013-2014 tmatsuur (Email: takenori dot matsuura at 12net dot jp)
 This program is licensed under the GNU GPL Version 2.
 */
 require_once dirname( __FILE__ ).'/config.php';
@@ -49,7 +49,7 @@ class blacklist_keys_manager {
 	function admin_menu() {
 		add_options_page(
 			__( 'Blacklist keys manager', BLACKLIST_KEYS_MANAGER_DOMAIN ),
-			__( 'Comment Blacklist' ), 9, self::PROPERTIES_NAME, array( &$this, 'properties' ) );
+			__( 'Comment Blacklist' ), 'manage_options', self::PROPERTIES_NAME, array( &$this, 'properties' ) );
 	}
 	function admin_head() {
 		wp_enqueue_script( 'jquery-ui-sortable' );
