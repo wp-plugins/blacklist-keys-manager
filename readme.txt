@@ -3,7 +3,7 @@ Contributors: tmatsuur
 Donate link: http://elearn.jp/wpman/column/blacklist-keys-manager.html
 Tags: comment, spam, blacklist, moderation
 Requires at least: 3.5.0
-Tested up to: 4.1.0
+Tested up to: 4.2.2
 Stable tag: 1.1.2
 
 The increase in efficiency of management of a comment blacklist is attained, and a spam comment is blocked.
@@ -53,6 +53,11 @@ Please contact to me.
 1. Properties page.
 
 == Changelog ==
+
+= 1.2.0 =
+* Extracts the words that are frequently used in the spam comments, it can now be added to the black list.
+* White list is now available for upload and download.
+* Fixed some bugs.
 
 = 1.1.2 =
 * Bug fix: A parameter of the function was adjusted.
